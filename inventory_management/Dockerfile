@@ -8,7 +8,8 @@ WORKDIR /app
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --default-timeout=100 -r requirements.txt
+
 
 # Copy project files
 COPY . .
