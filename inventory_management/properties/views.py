@@ -25,7 +25,7 @@ def property_owner_signup(request):
     else:
         form = SignupForm()
 
-    return render(request, 'signup.html', {'form': form})
+    return render(request, 'properties/signup.html', {'form': form})
 
 # List properties (only for logged-in users)
 @login_required

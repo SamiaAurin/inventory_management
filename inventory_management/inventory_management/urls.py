@@ -25,6 +25,6 @@ urlpatterns = [
     # Properties app URLs
     path('properties/', include('properties.urls')),
     
-    # Optional: Redirect root URL to properties list
-    path('', RedirectView.as_view(pattern_name='properties:property_list'), name='home'),
+    # Redirect root URL to properties sign-up page
+    path('', RedirectView.as_view(pattern_name='properties:signup'), name='home'),
 ]

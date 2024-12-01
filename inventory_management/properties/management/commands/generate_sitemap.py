@@ -1,6 +1,6 @@
 import json
 from django.core.management.base import BaseCommand
-from myapp.models import Country, Location
+from properties.models import Country, Location
 
 class Command(BaseCommand):
     help = "Generate sitemap.json for all country locations"
