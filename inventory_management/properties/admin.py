@@ -1,5 +1,5 @@
 from django.contrib import admin
-#from django.contrib.gis.admin import GeoModelAdmin
+from django.contrib.gis.forms import PointField
 from leaflet.admin import LeafletGeoAdmin
 from leaflet.forms.widgets import LeafletWidget
 from django.contrib.auth.models import User
@@ -17,7 +17,7 @@ class LocationAdmin(LeafletGeoAdmin):
 # Custom form for the Accommodation admin interface
 class AccommodationAdminForm(forms.ModelForm):
     user = forms.CharField(max_length=150, label="Username")  # Text input for username
-    
+   
     class Meta:
         model = Accommodation
         fields = '__all__'
@@ -31,7 +31,7 @@ class AccommodationAdminForm(forms.ModelForm):
             raise ValidationError("User with this username does not exist.")
 
 # Custom admin for Accommodation model
-class AccommodationAdmin(admin.ModelAdmin):
+class AccommodationAdmin(LeafletGeoAdmin):
     form = AccommodationAdminForm  # Use custom form
 
     # List the fields to display in the admin
