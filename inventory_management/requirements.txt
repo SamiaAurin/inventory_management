@@ -4,3 +4,4 @@ djangorestframework==3.14.0
 django-environ==0.10.0
 GDAL==3.6.2
 pycountry>=20.7.3 
+django-leaflet

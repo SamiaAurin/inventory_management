@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'properties',
+    'leaflet',
 ]
 
 MIDDLEWARE = [
@@ -110,6 +111,14 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+LEAFLET_CONFIG = {
+    'DEFAULT_CENTER': (0, 0),  # Default map center (latitude, longitude)
+    'DEFAULT_ZOOM': 2,         # Default zoom level
+    'MAX_ZOOM': 18,            # Maximum zoom level
+    'MIN_ZOOM': 2,             # Minimum zoom level
+    'TILES': 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',  # OpenStreetMap tiles
+    'ATTRIBUTION_PREFIX': 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+}
 
 
 # Internationalization
@@ -127,7 +136,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

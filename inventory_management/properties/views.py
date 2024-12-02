@@ -27,30 +27,5 @@ def property_owner_signup(request):
 
     return render(request, 'properties/signup.html', {'form': form})
 
-# List properties (only for logged-in users)
-@login_required
-def property_list(request):
-    properties = Accommodation.objects.filter(user=request.user)  # Show only properties owned by the logged-in user
-    return render(request, 'property_list.html', {'properties': properties})
 
-# Create a property (only for logged-in users)
-@login_required
-def property_create(request):
-    if request.method == 'POST':
-        form = PropertyForm(request.POST, request.FILES)  # Assuming you allow file uploads for property images
-        if form.is_valid():
-            property_instance = form.save(commit=False)
-            property_instance.user = request.user  # Assign the current user as the owner
-            property_instance.save()
-            messages.success(request, 'Property created successfully!')
-            return redirect('properties:property_list')
-    else:
-        form = PropertyForm()
 
-    return render(request, 'property_create.html', {'form': form})
-
-# View property details (only for logged-in users)
-@login_required
-def property_detail(request, property_id):
-    property_instance = get_object_or_404(Accommodation, id=property_id, user=request.user)  # Restrict to properties owned by the user
-    return render(request, 'property_detail.html', {'property': property_instance})

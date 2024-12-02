@@ -1,0 +1,30 @@
+[
+    {
+        "Bangladesh": "bangladesh",
+        "locations": [
+            {
+                "Dhaka": "bangladesh/dhaka"
+            },
+            {
+                "Rajshahi": "bangladesh/rajshahi"
+            }
+        ]
+    },
+    {
+        "USA": "usa",
+        "locations": [
+            {
+                "California": "usa/california",
+                "cities": [
+                    {
+                        "Los Angeles": "usa/california/los-angeles"
+                    }
+                ]
+            },
+            {
+                "New York": "usa/new-york",
+                "cities": []
+            }
+        ]
+    }
+]

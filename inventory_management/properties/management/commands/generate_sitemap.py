@@ -1,6 +1,7 @@
 import json
 from django.core.management.base import BaseCommand
-from properties.models import Country, Location
+from properties.models import Location
+from django.utils.text import slugify
 
 class Command(BaseCommand):
     help = "Generate sitemap.json for all country locations"
@@ -8,19 +9,36 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         sitemap = []
 
-        # Fetch countries and locations
-        for country in Country.objects.all():
+        # Fetch all countries from the Location model
+        countries = Location.objects.filter(location_type="country").order_by("title")
+        for country in countries:
+            country_slug = slugify(country.title)
             country_data = {
-                country.name: country.slug,
+                country.title: country_slug,
                 "locations": []
             }
 
-            # Fetch and sort locations
-            locations = country.locations.order_by("name")
-            for location in locations:
-                country_data["locations"].append({
-                    location.name: f"{country.slug}/{location.slug}"
-                })
+            # Fetch child locations (states or cities) of the country
+            child_locations = Location.objects.filter(parent=country).order_by("title")
+            for location in child_locations:
+                location_slug = slugify(location.title)
+                # If the location is a state, fetch its cities as well
+                if location.location_type == 'state':
+                    state_data = {
+                        location.title: f"{country_slug}/{location_slug}",
+                        "cities": []
+                    }
+                    cities = Location.objects.filter(parent=location).order_by("title")
+                    for city in cities:
+                        city_slug = slugify(city.title)
+                        state_data["cities"].append({
+                            city.title: f"{country_slug}/{location_slug}/{city_slug}"
+                        })
+                    country_data["locations"].append(state_data)
+                else:
+                    country_data["locations"].append({
+                        location.title: f"{country_slug}/{location_slug}"
+                    })
 
             sitemap.append(country_data)
 

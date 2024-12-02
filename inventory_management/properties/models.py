@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.gis.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
-from django.utils.text import slugify
 from django.core.exceptions import ValidationError
 import pycountry
 
@@ -16,7 +15,6 @@ class Location(models.Model):
 
     id = models.CharField(max_length=20, primary_key=True)
     title = models.CharField(max_length=100)
-    slug = models.SlugField(max_length=100, unique=True, blank=True)
     center = models.PointField(geography=True, null=True, blank=True)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
     location_type = models.CharField(max_length=20, choices=LOCATION_TYPES)
@@ -27,10 +25,6 @@ class Location(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.title)
-        super().save(*args, **kwargs)
 
     def clean(self):
         # Validation for hierarchy and country codes
@@ -49,12 +43,11 @@ class Accommodation(models.Model):
     id = models.CharField(max_length=20, primary_key=True)
     feed = models.PositiveSmallIntegerField(default=0)
     title = models.CharField(max_length=100)
-    slug = models.SlugField(max_length=100, unique=True, blank=True)
     country_code = models.CharField(max_length=2)
     bedroom_count = models.PositiveIntegerField()
     review_score = models.DecimalField(max_digits=3, decimal_places=1, default=0)
     usd_rate = models.DecimalField(max_digits=10, decimal_places=2)
-    center = models.PointField(geography=True)
+    center = models.PointField(geography=True, null=True, blank=True)
     images = models.JSONField(default=list)
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     amenities = models.JSONField(default=list)
@@ -64,10 +57,7 @@ class Accommodation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.title)
-        super(Accommodation, self).save(*args, **kwargs)
+    
 
     def __str__(self):
         return self.title
