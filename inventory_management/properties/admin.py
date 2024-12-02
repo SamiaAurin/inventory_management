@@ -1,7 +1,5 @@
 from django.contrib import admin
-from django.contrib.gis.forms import PointField
 from leaflet.admin import LeafletGeoAdmin
-from leaflet.forms.widgets import LeafletWidget
 from django.contrib.auth.models import User
 from .models import Location, Accommodation, LocalizeAccommodation
 from django import forms
