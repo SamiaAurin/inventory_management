@@ -3,6 +3,7 @@ from django.contrib.gis.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
+from django.db import connection
 import pycountry
 
 class Location(models.Model):
@@ -62,6 +63,8 @@ class Accommodation(models.Model):
     def __str__(self):
         return self.title
 
+
+
 class LocalizeAccommodation(models.Model):
     property = models.ForeignKey(Accommodation, on_delete=models.CASCADE)
     language = models.CharField(max_length=2)
@@ -71,5 +74,14 @@ class LocalizeAccommodation(models.Model):
     class Meta:
         unique_together = ('property', 'language')
 
-    def __str__(self):
-        return f"{self.property.title} - {self.language}"
+    def save(self, *args, **kwargs):
+        # Insert or update the appropriate partition based on language
+        partition_table = f'localizeaccommodation_{self.language}'
+        with connection.cursor() as cursor:
+            cursor.execute(f"""
+                INSERT INTO {partition_table} (property_id, language, description, policy)
+                VALUES (%s, %s, %s, %s)
+                ON CONFLICT (property_id, language) 
+                DO UPDATE SET description = EXCLUDED.description, policy = EXCLUDED.policy;
+            """, [self.property.id, self.language, self.description, self.policy])
+
