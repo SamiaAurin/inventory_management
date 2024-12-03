@@ -14,26 +14,34 @@ class LocationAdmin(LeafletGeoAdmin):
     
 # Custom form for the Accommodation admin interface
 class AccommodationAdminForm(forms.ModelForm):
-    user = forms.CharField(max_length=150, label="Username")  # Text input for username
+    user = forms.CharField(max_length=150, label="Username/UserID", disabled=True)  # Text input for username
    
     class Meta:
         model = Accommodation
         fields = '__all__'
        
+    # Custom validation for user field, only if not auto-filled
     def clean_user(self):
+        # If the user is pre-filled, we don't need to validate it
         username = self.cleaned_data.get('user')
-        try:
-            user = User.objects.get(username=username)  # Lookup user by username
-            return user
-        except User.DoesNotExist:
-            raise ValidationError("User with this username does not exist.")
+        if username:
+            try:
+                user = User.objects.get(username=username)
+                return user
+            except User.DoesNotExist:
+                raise ValidationError("User with this username does not exist.")
+        return None
 
 # Custom admin for Accommodation model
+
 class AccommodationAdmin(LeafletGeoAdmin):
-    form = AccommodationAdminForm  # Use custom form
+    form = AccommodationAdminForm  # Use the custom form with the user field
 
     # List the fields to display in the admin
-    list_display = ('title', 'country_code', 'bedroom_count', 'review_score', 'usd_rate', 'location', 'published', 'user')
+    list_display = ('id', 'title', 'country_code', 'bedroom_count', 'review_score', 'usd_rate', 'location', 'published', 'user')
+
+    # Read-only fields for admin
+    readonly_fields = ('user',)  # Make the user field read-only in the admin
 
     # Filter accommodations based on the logged-in user
     def get_queryset(self, request):
@@ -45,7 +53,15 @@ class AccommodationAdmin(LeafletGeoAdmin):
         
         return queryset
 
+    # Auto-fill user during save
+    def save_model(self, request, obj, form, change):
+        if not obj.user:  # Ensure user is set only if not already set
+            obj.user = request.user
+        super().save_model(request, obj, form, change)
+
+# Register the model and admin
 admin.site.register(Accommodation, AccommodationAdmin)
+
 
 
 @admin.register(LocalizeAccommodation)

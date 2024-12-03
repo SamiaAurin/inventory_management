@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Accommodation
+from django.core.exceptions import ValidationError
+
 
 # Signup form
 class SignupForm(forms.ModelForm):
@@ -10,8 +11,13 @@ class SignupForm(forms.ModelForm):
         model = User
         fields = ['username', 'email', 'password']
 
-# Property creation form
-class PropertyForm(forms.ModelForm):
-    class Meta:
-        model = Accommodation
-        fields = ['title', 'country_code', 'bedroom_count', 'review_score', 'usd_rate', 'center', 'images', 'amenities']
+
+    # Custom validation for the username field
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        
+        # Check if username already exists in the database
+        if User.objects.filter(username=username).exists():
+            raise ValidationError("This username is already taken. Please choose a different one.")
+        
+        return username

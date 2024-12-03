@@ -10,20 +10,57 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
-    <div class="container">
+    <div class="container mt-5">
         <h1>Sign Up</h1>
+        
+        {% if messages %}
+        <ul class="alert alert-info">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
         <form method="post" action="{% url 'properties:signup' %}">
             {% csrf_token %}
-            <label for="username">Username:</label>
-            <input type="text" name="username" required>
             
-            <label for="email">Email:</label>
-            <input type="email" name="email" required>
+            <!-- Username Field -->
+            <div class="mb-3">
+                <label for="username" class="form-label">Username:</label>
+                <input type="text" name="username" class="form-control" id="username" required>
+                <!-- Display validation error for username -->
+                {% if form.username.errors %}
+                    <div class="text-danger">
+                        {{ form.username.errors|striptags }}
+                    </div>
+                {% endif %}
+            </div>
             
-            <label for="password">Password:</label>
-            <input type="password" name="password" required>
+            <!-- Email Field -->
+            <div class="mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <input type="email" name="email" class="form-control" id="email" required>
+                <!-- Display validation error for email -->
+                {% if form.email.errors %}
+                    <div class="text-danger">
+                        {{ form.email.errors|striptags }}
+                    </div>
+                {% endif %}
+            </div>
             
-            <button type="submit">Sign Up</button>
+            <!-- Password Field -->
+            <div class="mb-3">
+                <label for="password" class="form-label">Password:</label>
+                <input type="password" name="password" class="form-control" id="password" required>
+                <!-- Display validation error for password -->
+                {% if form.password.errors %}
+                    <div class="text-danger">
+                        {{ form.password.errors|striptags }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Sign Up</button>
         </form>
     </div>
 </body>

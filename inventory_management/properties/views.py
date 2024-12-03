@@ -1,10 +1,8 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.models import User, Group
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import Group
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
-from .models import Accommodation
-from .forms import PropertyForm, SignupForm  # Assuming you have forms for property creation and signup
+
+from .forms import  SignupForm  # Assuming you have forms for property creation and signup
 
 # Signup view for property owners
 def property_owner_signup(request):
@@ -21,7 +19,7 @@ def property_owner_signup(request):
             user.groups.add(group)
 
             messages.success(request, 'Your account has been created! You can now log in.')
-            return redirect('properties:login')  # Redirect to login page
+
     else:
         form = SignupForm()
 
