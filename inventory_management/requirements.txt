@@ -6,3 +6,4 @@ GDAL==3.6.2
 pycountry>=20.7.3 
 django-leaflet
 django-import-export
+langid

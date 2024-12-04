@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.db import connection
 import pycountry
-
+import langid
 
 class Location(models.Model):
     LOCATION_TYPES = [
@@ -66,15 +66,37 @@ class Accommodation(models.Model):
 
 
 
+LANGUAGE_CHOICES = [
+    ('en', 'English'),
+    ('fr', 'French'),
+    ('es', 'Spanish'),
+    ('de', 'German'),
+    ('ar', 'Arabic'),
+    # Add more language codes and names as needed
+]
+
 class LocalizeAccommodation(models.Model):
     property = models.ForeignKey(Accommodation, on_delete=models.CASCADE)
-    language = models.CharField(max_length=2)
+    language = models.CharField(max_length=2, choices=LANGUAGE_CHOICES)  # Dropdown choices
     description = models.TextField()
     policy = models.JSONField(default=dict)
 
     class Meta:
         unique_together = ('property', 'language')
 
+    def clean(self):
+        # Check if description language matches the selected language
+        detected_language, _ = langid.classify(self.description)
+        
+        if detected_language != self.language:
+            raise ValidationError(f"The description is not in the expected language ({self.language}). It is in {detected_language}.")
+        # Check if all policies match the selected language
+        if self.policy:
+            for key, value in self.policy.items():
+                if isinstance(value, str):  # Check only if the value is a string
+                    detected_language_policy, _ = langid.classify(value)
+                    if detected_language_policy != self.language:
+                        raise ValidationError(f"The policy description is not in the expected language ({self.language}). It is in {detected_language_policy}.")
+                    
     def __str__(self):
         return f"{self.property.title} - {self.language}"
-
