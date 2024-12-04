@@ -4,14 +4,49 @@ from django.contrib.auth.models import User
 from .models import Location, Accommodation, LocalizeAccommodation
 from django import forms
 from django.core.exceptions import ValidationError
-from django.db import connection, IntegrityError
+from django.contrib.gis.geos import Point
+from import_export.admin import ImportExportModelAdmin
+from import_export import resources, fields
 
+
+
+class LocationResource(resources.ModelResource):
+    # Define custom field for center (Point)
+    center = fields.Field()
+
+    class Meta:
+        model = Location
+        fields = ('id', 'title', 'center', 'parent', 'location_type', 'country_code', 'state_abbr', 'city')
+        export_order = ('id', 'title', 'center', 'parent', 'location_type', 'country_code', 'state_abbr', 'city')
+
+    def before_import_row(self, row, **_kwargs):
+        
+        if "center" in row and row["center"]:
+            try:
+                if 'POINT(' in row["center"]:
+                    coordinates = row["center"].replace("POINT(", "").replace(")", "").split()
+                    longitude, latitude = map(float, coordinates)
+                else:
+                    latitude, longitude = map(float, row["center"].split(','))
+                row["center"] = Point(longitude, latitude, srid=4326)
+            except ValueError as e:
+                raise ValidationError(f"Invalid center format: {row['center']}. Error: {str(e)}")
+        
+        return row
+
+
+
+# Register the model with import-export functionality
 @admin.register(Location)
-class LocationAdmin(LeafletGeoAdmin):
+class LocationAdmin(ImportExportModelAdmin, LeafletGeoAdmin):
+    
+    resource_class = LocationResource  # Link the resource class to the admin
     list_display = ('title', 'location_type', 'country_code', 'created_at')
     list_filter = ('location_type', 'country_code')
     search_fields = ('title', 'city')
     
+    
+             
 # Custom form for the Accommodation admin interface
 class AccommodationAdminForm(forms.ModelForm):
     user = forms.CharField(max_length=150, label="Username/UserID", disabled=True)  # Text input for username
@@ -67,25 +102,6 @@ admin.site.register(Accommodation, AccommodationAdmin)
 
 @admin.register(LocalizeAccommodation)
 class LocalizeAccommodationAdmin(admin.ModelAdmin):
-    list_display = ('property', 'language')
+    list_display = ('property', 'language', 'description')
     list_filter = ('language', 'property')
-    def save_model(self, request, obj, form, change):
-        # Manually set the partition for the correct language
-        partition_table = f'localizeaccommodation_{obj.language}'
-        
-        # Ensure the property_id exists in the properties_accommodation table
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT COUNT(*) FROM properties_accommodation WHERE id = %s", [obj.property_id])
-            result = cursor.fetchone()
-            if result[0] == 0:
-                raise IntegrityError(f"Property with id {obj.property_id} does not exist in properties_accommodation.")
-            
-            try:
-                cursor.execute(f"""
-                    INSERT INTO {partition_table} (property_id, language, description, policy)
-                    VALUES (%s, %s, %s, %s)
-                    ON CONFLICT (property_id, language) 
-                    DO UPDATE SET description = EXCLUDED.description, policy = EXCLUDED.policy;
-                """, [obj.property_id, obj.language, obj.description, obj.policy])
-            except IntegrityError as e:
-                raise IntegrityError(f"Error inserting data into partition: {e}")
+    search_fields = ('property', 'language', 'description')

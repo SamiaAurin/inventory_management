@@ -3,10 +3,33 @@
         "Bangladesh": "bangladesh",
         "locations": [
             {
+                "Barishal": "bangladesh/barishal"
+            },
+            {
+                "Chittagong": "bangladesh/chittagong"
+            },
+            {
                 "Dhaka": "bangladesh/dhaka"
             },
             {
+                "Khulna": "bangladesh/khulna"
+            },
+            {
+                "Mymensingh": "bangladesh/mymensingh"
+            },
+            {
                 "Rajshahi": "bangladesh/rajshahi"
+            },
+            {
+                "Sylhet": "bangladesh/sylhet"
+            }
+        ]
+    },
+    {
+        "France": "france",
+        "locations": [
+            {
+                "Paris": "france/paris"
             }
         ]
     },

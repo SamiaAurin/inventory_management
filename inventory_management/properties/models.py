@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.db import connection
 import pycountry
 
+
 class Location(models.Model):
     LOCATION_TYPES = [
         ('continent', 'Continent'),
@@ -48,7 +49,7 @@ class Accommodation(models.Model):
     bedroom_count = models.PositiveIntegerField()
     review_score = models.DecimalField(max_digits=3, decimal_places=1, default=0)
     usd_rate = models.DecimalField(max_digits=10, decimal_places=2)
-    center = models.PointField(geography=True, null=True, blank=True)
+    center = models.PointField(geography=True, null=True, blank=True,srid=4326)
     images = models.JSONField(default=list)
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     amenities = models.JSONField(default=list)
@@ -74,14 +75,6 @@ class LocalizeAccommodation(models.Model):
     class Meta:
         unique_together = ('property', 'language')
 
-    def save(self, *args, **kwargs):
-        # Insert or update the appropriate partition based on language
-        partition_table = f'localizeaccommodation_{self.language}'
-        with connection.cursor() as cursor:
-            cursor.execute(f"""
-                INSERT INTO {partition_table} (property_id, language, description, policy)
-                VALUES (%s, %s, %s, %s)
-                ON CONFLICT (property_id, language) 
-                DO UPDATE SET description = EXCLUDED.description, policy = EXCLUDED.policy;
-            """, [self.property.id, self.language, self.description, self.policy])
+    def __str__(self):
+        return f"{self.property.title} - {self.language}"
 

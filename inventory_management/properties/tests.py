@@ -121,8 +121,9 @@ class SignupViewTests(TestCase):
         self.assertEqual(response.status_code, 200)  # Should stay on the same page
         # Check if the error message for duplicate username is shown
         self.assertContains(response, "This username is already taken. Please choose a different one.")
-        # Ensure the user is not created with the duplicate username
-        self.assertFalse(User.objects.filter(username='testuser').exists())
+        # Ensure no duplicate users were created
+        self.assertEqual(User.objects.filter(username=self.username).count(), 1)
+
     
     def test_signup_unsuccessful_blank_username(self):
         # Try submitting with a blank username
