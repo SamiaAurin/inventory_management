@@ -1,0 +1,4 @@
+id,title,center,parent,location_type,country_code,state_abbr,city
+6,Los Angeles,POINT(-118.2437 34.0522),5,city,US,,Los Angeles
+4,Rajshahi,POINT(88.6200 24.3635),1,city,BD,,Rajshahi
+3,Dhaka,POINT(90.4125 23.8103),1,city,BD,,Dhaka

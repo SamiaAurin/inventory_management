@@ -11,19 +11,16 @@ class SignupForm(forms.ModelForm):
         model = User
         fields = ['username', 'email', 'password']
 
-
-    # Custom validation for the username and email fields
-    def clean(self):
-        cleaned_data = super().clean()
-        username = cleaned_data.get('username')
-        email = cleaned_data.get('email')
-        
-        # Check if username already exists in the database
+    # Custom validation for username
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
         if User.objects.filter(username=username).exists():
             raise ValidationError("This username is already taken. Please choose a different one.")
-        
-        # Check if email already exists in the database
+        return username
+
+    # Custom validation for email
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exists():
             raise ValidationError("This email is already taken. Please choose a different one.")
-        
-        return cleaned_data
+        return email
