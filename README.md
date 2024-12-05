@@ -10,13 +10,12 @@
 7. [Usage](#usage)
 8. [Testing](#testing)  
 9. [Command-Line Utilities](#command-line-utilities)  
-
+10. [Improvements](#improvements)
 
 ---
 
 ## Overview  
-The **Property Management System** is a Django-based application designed for managing property information with robust geospatial capabilities provided by PostgreSQL and PostGIS. The project focuses on enabling hierarchical location management, accommodation details, and localized descriptions, all accessible via the Django Admin interface.  
-
+The **Property Management System** is a Django-based application designed for managing property information with robust geospatial capabilities provided by PostgreSQL and PostGIS. The project focuses on enabling hierarchical location management, accommodation details, and localized descriptions, all accessible via the Django Admin interface. 
 ---
 
 ## Features  
@@ -68,8 +67,24 @@ cd inventory_management
 docker-compose build  
 docker-compose up    
 ```
+To stop the application, press `Ctrl + C` or run 
+```bash 
+docker-compose down
+```
 **Note:**
 The Docker build process may take some time to complete. This is because the **Dockerfile** and **docker-compose.yml** are configured to automatically install all dependencies listed in the **requirements.txt** file during the build phase. Please be patient while the setup is finalized.
+
+If you encounter any dependency issues while running the application, access the container's web bash and execute the following command to resolve them:
+
+```bash
+docker exec -it inventory_management-web-1 bash
+pip install -r requirements.txt
+```
+Alternatively, you can use the following command to bypass the cache during installation:
+```bash
+docker exec -it inventory_management-web-1 bash
+pip install --no-cache-dir -r requirements.txt
+```
 
 ## Project Structure
 The project structure should look like this below.
@@ -124,7 +139,7 @@ The project structure should look like this below.
 ### Admin Interface  
 - Navigate to: [http://localhost:8000/admin](http://localhost:8000/admin).  
 - Log in using your superuser credentials. 
-  - Set up a superuser for accessing the Django Admin (See the pdf)    
+  - Set up a superuser for accessing the Django Admin (Download **Assignment 06.pdf** pdf for better understanding.)    
 - Key actions you can perform in the Admin interface:   
   - Add, update, or delete **Locations**, **Accommodations** and **Localize accommodations**.  
   - Assign user roles and manage permissions.  
@@ -135,7 +150,7 @@ The project structure should look like this below.
 
 ### Reference for Understanding Add, Update, Delete Operations, and User Management
 
-For a comprehensive guide on managing the **Add**, **Update**, and **Delete** operations for all tables, as well as understanding the user management and role-based access control in this project, please download the **PDF document** titled **Assignment06**. This document provides detailed instructions on:
+For a comprehensive guide on managing the **Add**, **Update**, and **Delete** operations for all tables, as well as understanding the user management and role-based access control in this project, please download the **PDF document** titled **Assignment 06.pdf**. This document provides detailed instructions on:
 
 - How to add, update, and delete records in the system.  
 - How the **Admin** can grant specific access to the **Property Owners** group, ensuring that users have appropriate permissions to manage their own properties.
@@ -168,6 +183,8 @@ In the `Assignment 06.pdf`, there are screenshots demonstrating this process. It
 
 ## Command-Line Utilities
 
+A sitemap is essential for improving search engine optimization (SEO) by helping search engines crawl and index a website's content more efficiently. It provides a structured map of the website's URLs, including locations, allowing search engines to better understand and rank the site's content.
+
 - `properties/`
     - `__pycache__/`
     - `management/commands`
@@ -194,3 +211,11 @@ It will generate a `sitemap.json` file in the main directory of the `inventory_m
   }
 ]
 ```
+
+## Improvements
+
+1. **Accommodation Table Partitioning**: Implement partitioning of the Accommodation table based on the `feed` field to enhance performance and scalability when handling large datasets.
+
+2. **LocalizeAccommodation Table Partitioning**: Apply partitioning to the LocalizeAccommodation table based on the `language` field, optimizing queries related to localized descriptions and policies.
+
+3. **CSV Import Enhancement**: Resolve issues with the CSV import process to automatically populate the `center` column, ensuring the correct geolocation data is saved without manual intervention.
