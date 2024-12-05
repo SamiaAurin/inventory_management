@@ -125,6 +125,23 @@ class SignupViewTests(TestCase):
         self.assertEqual(User.objects.filter(username=self.username).count(), 1)
 
     
+
+    def test_signup_unsuccessful_duplicate_email(self):
+        # Send POST request with a duplicate email
+        response = self.client.post(reverse('properties:signup'), {
+            'username': 'newuser',  # A new username
+            'password': 'newpassword',
+            'email': self.email  # Use the existing email
+        })
+        
+        # Check if the form is not valid (should not be redirected)
+        self.assertEqual(response.status_code, 200)  # Should stay on the same page
+        # Check if the error message for duplicate email is shown
+        self.assertContains(response, "This email is already taken. Please choose a different one.")
+        # Ensure no duplicate emails were created
+        self.assertEqual(User.objects.filter(email=self.email).count(), 1)
+
+
     def test_signup_unsuccessful_blank_username(self):
         # Try submitting with a blank username
         response = self.client.post(reverse('properties:signup'), {
@@ -150,3 +167,7 @@ class SignupViewTests(TestCase):
         self.assertEqual(response.status_code, 200)  # Should stay on the same page
         # Check if the error message for blank password is shown
         self.assertContains(response, "This field is required.")
+
+
+    
+    
